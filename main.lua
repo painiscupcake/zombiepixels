@@ -91,7 +91,6 @@ function love.keypressed(key)
     local numkey = tonumber(key)
     if numkey then
         player:setWeapon(playerHotbar[numkey])
-        print(('Number pressed: %i: weapon name - %s'):format(numkey, player:getWeapon().name))
     end
 
 
