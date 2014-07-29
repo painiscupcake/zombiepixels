@@ -1,0 +1,14 @@
+{
+    "name"              : "Sawn off Shotgun",
+    "clipSize"          : 2,
+    "reloadTime"        : 1,
+    "fireDelay"         : 0.25,
+    "travelDistance"    : 1000,
+    "velocityRange"     : [650, 850],
+    "damageRange"       : [20, 30],
+    "bulletsPerShot"    : 50,
+    "minSpread"         : 30,
+    "maxSpread"         : 30,
+    "spreadIncrease"    : 0,
+    "spreadDecrease"    : 0
+}
