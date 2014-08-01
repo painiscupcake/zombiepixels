@@ -1,5 +1,4 @@
-Vector  = require 'hump.vector'
-Class   = require 'hump.class'
+Vector  = require 'vector'
 
 Collider    = require 'collider'
 
