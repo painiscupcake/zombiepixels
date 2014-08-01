@@ -1,0 +1,14 @@
+{
+    "name"              : "Pistol",
+    "clipSize"          : 8,
+    "reloadTime"        : 1,
+    "fireDelay"         : 0.3,
+    "travelDistance"    : 1000,
+    "velocityRange"     : [750, 800],
+    "damageRange"       : [35, 50],
+    "bulletsPerShot"    : 1,
+    "minSpread"         : 1,
+    "maxSpread"         : 10,
+    "spreadIncrease"    : 3.5,
+    "spreadDecrease"    : 5
+}

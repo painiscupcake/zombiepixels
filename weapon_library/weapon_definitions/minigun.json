@@ -1,0 +1,14 @@
+{
+    "name"              : "Minigun",
+    "clipSize"          : 200,
+    "reloadTime"        : 5,
+    "fireDelay"         : 0.025,
+    "travelDistance"    : 1000,
+    "velocityRange"     : [700, 900],
+    "damageRange"       : [45, 65],
+    "bulletsPerShot"    : 1,
+    "minSpread"         : 1,
+    "maxSpread"         : 30,
+    "spreadIncrease"    : 4,
+    "spreadDecrease"    : 30
+}
