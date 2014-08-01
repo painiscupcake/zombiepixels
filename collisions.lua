@@ -51,7 +51,7 @@ end
 -- little function that checks if two circles are touching
 -- takes 2 objects with fields: position (vector), radius (number)
 local function areTouching(a, b)
-    if (a.position - b.position):length() <= a.radius + b.radius then
+    if (a.position - b.position):len() <= a.radius + b.radius then
         return true
     else
         return false
@@ -64,9 +64,9 @@ end
 -- non-colliding circles only
 local function separateEnemies(a, b)
     local diffvec = b.position - a.position
-    if diffvec:length() > 0 then
-        local dp = diffvec:normalize()
-        local dpmag = ((a.radius + b.radius) - diffvec:length()) / 2
+    if diffvec:len() > 0 then
+        local dp = diffvec:normalized()
+        local dpmag = ((a.radius + b.radius) - diffvec:len()) / 2
 
         a.position = a.position - dp * dpmag / 2
         b.position = b.position + dp * dpmag / 2
@@ -78,9 +78,9 @@ end
 -- however, first arg stays in place and second arg is pushed away from first
 local function separatePlayerAndEnemy(p, e)
     local diffvec = e.position - p.position
-    if diffvec:length() > 0 then
-        local dp = diffvec:normalize()
-        local dpmag = ((p.radius + e.radius) - diffvec:length()) / 2
+    if diffvec:len() > 0 then
+        local dp = diffvec:normalized()
+        local dpmag = ((p.radius + e.radius) - diffvec:len()) / 2
 
         e.position = e.position + dp * dpmag
     end

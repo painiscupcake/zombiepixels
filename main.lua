@@ -1,30 +1,32 @@
-Vector          = require 'vec'
-Collider        = require 'collisions'
-Player          = require 'player'
-enemies         = require 'enemies'
-projectiles     = require 'projectiles'
-Camera          = require 'gamera'
-WeaponFactory   = require 'weapons'
-WeaponList      = require 'weaponlist'
-Tracer          = require 'tracer'
+Vector  = require 'hump.vector'
+Class   = require 'hump.class'
 
-Console         = require 'debugconsole'
+Collider    = require 'collider'
 
--- set some new handy global functions
-require 'stdext'
+Entity          = require 'entity'
+EntityUpdater   = require 'entityupdater'
+
+Player              = require 'player'
+Enemies             = require 'enemies'
+ProjectileLibrary   = require 'projectile_library'
+WeaponLibrary       = require 'weapon_library'
+
+Camera  = require 'gamera'
+Tracer  = require 'tracer'
+
+Console    = require 'debugconsole'
 
 
 DEBUG = true
 
 
 function love.load()
-    -- this function contents are temporary
+    METER = 64  -- useful for scaling while drawing
+    Collider.init(METER)
+    -- everything below in this function is temporary
 
     -- some variables
     windowWidth, windowHeight = love.window.getDimensions()
-
-    -- set world bounds
-    Collider.setBounds(0, windowWidth, 0, windowHeight)
 
     -- get console
     console = Console.new()
@@ -33,39 +35,31 @@ function love.load()
     camera = Camera.new(0,0,windowWidth,windowHeight)
 
 
-    -- player hotbar [1-9]
-    playerHotbar = {}
-    playerHotbar[1] = WeaponList['pistol']:new(player, 'player')
-    playerHotbar[2] = WeaponList['shotgun']:new(player, 'player')
-    playerHotbar[3] = WeaponList['sawnoffshotgun']:new(player, 'player')
-    playerHotbar[4] = WeaponList['minigun']:new(player, 'player')
-    playerHotbar[5] = WeaponList['opwallofbullets']:new(player, 'player')
-
-
     -- create player and set axis speeds
     player = Player.new(windowWidth/2, windowHeight/2)
-    player:setWeapon(playerHotbar[1])
     playerXVelocity = Vector(100, 0)
     playerYVelocity = Vector(0, 100)
 
-    -- create some enemies
-    enemies.createEnemies(10)
+    -- create some Enemies
+    Enemies.createEnemies(10)
+
+    EntityUpdater.addEntity(player)
 end
 
 
 function love.update(dt)
     console:log(('FPS: %i'):format(love.timer.getFPS()))
 
-    Collider.resolveCollisions(dt)
+    Collider:update(dt)
 
-    player:update(dt)
+    EntityUpdater.update(dt)
 
     if love.mouse.isDown('l') then
         player:useWeapon()
     end
 
-    enemies.update(dt)
-    projectiles.update(dt)
+    Enemies.update(dt)
+    --Projectiles.update(dt)
 end
 
 
@@ -83,7 +77,7 @@ function love.keypressed(key)
     end
 
     if key == 'n' then
-        enemies.createEnemies(10)
+        Enemies.createEnemies(10)
     end
 
 
@@ -96,15 +90,15 @@ function love.keypressed(key)
 
     -- player controls:
     if key == 'w' then
-        player:addVelocity(-playerYVelocity)
+        player:applyVelocity(-playerYVelocity)
     elseif key == 's' then
-        player:addVelocity(playerYVelocity)
+        player:applyVelocity(playerYVelocity)
     end
 
     if key == 'a' then
-        player:addVelocity(-playerXVelocity)
+        player:applyVelocity(-playerXVelocity)
     elseif key == 'd' then
-        player:addVelocity(playerXVelocity)
+        player:applyVelocity(playerXVelocity)
     end
 end
 
@@ -112,15 +106,15 @@ end
 function love.keyreleased(key)
     -- player controls:
     if key == 'w' then
-        player:addVelocity(playerYVelocity)
+        player:applyVelocity(playerYVelocity)
     elseif key == 's' then
-        player:addVelocity(-playerYVelocity)
+        player:applyVelocity(-playerYVelocity)
     end
 
     if key == 'a' then
-        player:addVelocity(playerXVelocity)
+        player:applyVelocity(playerXVelocity)
     elseif key == 'd' then
-        player:addVelocity(-playerXVelocity)
+        player:applyVelocity(-playerXVelocity)
     end
 end
 
@@ -135,12 +129,12 @@ function love.draw()
     love.graphics.setColor(255,255,255)
     player:draw()
 
-    -- draw enemies
+    -- draw Enemies
     love.graphics.setColor(0,175,0)
-    enemies.draw()
+    Enemies.draw()
 
-    -- draw projectiles
-    projectiles.draw()
+    -- draw Projectiles
+    --Projectiles.draw()
 
 
     if DEBUG then

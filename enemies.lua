@@ -5,14 +5,17 @@ local Enemies = {}
 Enemies.container = {}
 
 
-function Enemies.newEnemy(x, y)
+function Enemies.newEnemy(x, y, mass)
     local e = {}
-    e.position = Vector(x, y)
-    e.velocity = Vector()
-    e.radius = 10
+    e.entity = Entity.newCircle(mass, Vector(x,y), 10)
+    e.entity.type = 'enemy'
+    e.entity.shape.entity = e   -- used in collision callbacks
+
+    e.alive = true
     e.health = 100
     e.damage = 5
-    e.alive = true
+
+    e.currentWeapon = nil
 
     table.insert(Enemies.container, e)
 end
@@ -41,8 +44,7 @@ function Enemies.update(dt)
     -- put updated enemies in new container
     local newContainer = {}
     for _, e in ipairs(Enemies.container) do
-        e.position = e.position + e.velocity * dt
-        Collider.keepInBounds(e)
+        e.entity.position = e.entity.position + e.velocity * dt
 
         if e.health <= 0 then
             e.alive = false
@@ -62,7 +64,8 @@ end
 
 function Enemies.draw()
     for _, e in ipairs(Enemies.container) do
-        love.graphics.circle('fill', e.position.x, e.position.y, e.radius)
+        local x, y = e.entity.position:unpack()
+        love.graphics.circle('fill', x, y, e.entity.radius)
     end
 end
 

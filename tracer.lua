@@ -30,10 +30,10 @@ end
 
 function Tracer:draw()
     local distance = self.endPos-self.startPos
-    local distanceLength = distance:length()
+    local distanceLength = distance:len()
     local localLength = math.min(self.length, distanceLength)
 
-    local startPos = self.startPos + distance:normalize() * (distanceLength - localLength)
+    local startPos = self.startPos + distance:normalized() * (distanceLength - localLength)
 
     local x1, y1 = startPos:unpack()
     local x2, y2 = self.endPos:unpack()

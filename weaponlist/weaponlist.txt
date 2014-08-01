@@ -1,5 +1,0 @@
-pistol
-minigun
-shotgun
-sawnoffshotgun
-opwallofbullets

@@ -2,14 +2,18 @@ local Player = {}
 Player.__index = Player
 
 
-function Player.new(x, y)
+function Player.new(x, y, mass)
     local p = {}
-    p.position = Vector(x, y)
-    p.velocity = Vector()
+    p.type = 'player'
+    p.entity = Entity.newCircle(mass, Vector(x,y), 10)
+    p.entity.shape.entity = p  -- used in collision callbacks
+
     p.alive = true
     p.health = 100
     p.damage = 20
-    p.radius = 10
+
+    p.speed = 100
+
     p.currentWeapon = nil
 
     return setmetatable(p, Player)
@@ -21,8 +25,8 @@ function Player:setVelocity(velocity)
 end
 
 
-function Player:addVelocity(velocity)
-    self.velocity = self.velocity + velocity
+function Player:applyVelocity(velocity)
+    self.entity.velocity = (self.entity.velocity + velocity):normalized() * self.speed
 end
 
 --[[ unused methods
@@ -65,8 +69,7 @@ end
 
 
 function Player:update(dt)
-    self.position = self.position + self.velocity * dt
-    Collider.keepInBounds(self)
+    self.entity:update()
 
     if self.health <= 0 then
         self.alive = false
@@ -75,13 +78,15 @@ function Player:update(dt)
     self.currentWeapon:update(dt)
 
     local s = 'Player:\npos: %s\nvel: %s\nhp: %.3f\nweapon: %s\n'
-    s = s:format(self.position, self.velocity, self.health, self:getWeapon().name)
+    s = s:format(self.entity.position, self.entity.velocity, self.health, self:getWeapon().name)
     console:log(s)
 end
 
 
 function Player:draw()
-    love.graphics.circle('fill', self.position.x, self.position.y, self.radius)
+    -- to be changed
+    local x, y = self.entity.position:unpack()
+    love.graphics.circle('fill', x, y, self.entity.shape.radius)
 end
 
 
