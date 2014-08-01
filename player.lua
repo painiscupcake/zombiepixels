@@ -26,7 +26,7 @@ end
 
 
 function Player:applyVelocity(velocity)
-    self.entity.velocity = (self.entity.velocity + velocity):normalized() * self.speed
+    self.entity:applyVelocity(velocity)
 end
 
 --[[ unused methods
@@ -69,16 +69,15 @@ end
 
 
 function Player:update(dt)
-    self.entity:update()
+    self.entity.velocity = self.entity.velocity:normalized() * self.speed
+    self.entity:update(dt)
 
     if self.health <= 0 then
         self.alive = false
     end
 
-    self.currentWeapon:update(dt)
-
-    local s = 'Player:\npos: %s\nvel: %s\nhp: %.3f\nweapon: %s\n'
-    s = s:format(self.entity.position, self.entity.velocity, self.health, self:getWeapon().name)
+    local s = 'Player:\npos: %s\nvel: %s\nhp: %.3f\n'
+    s = s:format(self.entity.position, self.entity.velocity, self.health)
     console:log(s)
 end
 

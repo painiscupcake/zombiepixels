@@ -43,7 +43,7 @@ function love.load()
     -- create some Enemies
     Enemies.createEnemies(10)
 
-    EntityUpdater.addEntity(player)
+    --EntityUpdater.addEntity(player)
 end
 
 
@@ -52,7 +52,8 @@ function love.update(dt)
 
     Collider:update(dt)
 
-    EntityUpdater.update(dt)
+    --EntityUpdater.update(dt)
+    player:update(dt)
 
     if love.mouse.isDown('l') then
         player:useWeapon()
@@ -78,13 +79,6 @@ function love.keypressed(key)
 
     if key == 'n' then
         Enemies.createEnemies(10)
-    end
-
-
-    -- player hotbar manipulations
-    local numkey = tonumber(key)
-    if numkey then
-        player:setWeapon(playerHotbar[numkey])
     end
 
 

@@ -40,7 +40,7 @@ function Entity.newPolygon(mass, position, points)
     -- points are local
     local o = newEntity(mass, position)
 
-    local shape = Collider.addPolygon(unpack(points))
+    local shape = Collider:addPolygon(unpack(points))
     shape:moveTo(o.position:unpack())
     o.shape = shape
 
@@ -54,7 +54,7 @@ function Entity.newRectangle(mass, position, width, height)
 
     local p = o.position
     local ulc = p - Vector(width/2, height/2)    -- upper left corner
-    local shape = Collider.addRectangle(ulc.x, ulc.y, width, height)
+    local shape = Collider:addRectangle(ulc.x, ulc.y, width, height)
     o.shape = shape
 
     return setmetatable(o, Entity)
@@ -65,7 +65,7 @@ function Entity.newCircle(mass, position, radius)
     local o = newEntity(mass, position)
 
     local p = o.position
-    local shape = Collider.addCircle(p.x, p.y, radius)
+    local shape = Collider:addCircle(p.x, p.y, radius)
     shape.radius = radius
     o.shape = shape
 
@@ -77,7 +77,7 @@ function Entity.newPoint(mass, position)
     local o = newEntity(mass, position)
 
     local p = o.position
-    local shape = Collider.addPoint(p.x, p.y)
+    local shape = Collider:addPoint(p.x, p.y)
     o.shape = shape
 
     return setmetatable(o, Entity)

@@ -20,6 +20,16 @@ end
 
 ----------------------------------
 
+local mt = {}
+function mt.__index(t,k)
+    local o = rawget(t,k)
+    if o then
+        return o
+    else
+        return t.collider[o]
+    end
+end
+
 local Collider = {}
 
 
@@ -28,7 +38,7 @@ function Collider.init(cellsize)
     setmetatable(Collider, {__index = Collider.collider})
 end
 
-
+--[[
 function Collider.addPolygon(...)
     return Collider.collider:addPolygon(...)
 end
@@ -47,6 +57,6 @@ end
 function Collider.addPoint(...)
     return Collider.collider:addPoint(...)
 end
-
+--]]
 
 return Collider
