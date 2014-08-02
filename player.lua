@@ -1,90 +1,77 @@
+local Entity = require 'entity'
+
+
 local Player = {}
-Player.__index = Player
+local mt = {__index=Player}
 
 
 function Player.new(x, y, mass)
     local p = {}
+
     p.type = 'player'
-    p.entity = Entity.newCircle(mass, Vector(x,y), 10)
-    p.entity.shape.entity = p  -- used in collision callbacks
+
+    p.entity = Entity.newCircle(mass, x, y, 0.25)
+    p.entity.shape.radius = 0.25
+
+    p.entity.shape.owner = p  -- used in collision callbacks
 
     p.alive = true
     p.health = 100
-    p.damage = 20
 
-    p.speed = 100
+    p.speed = 5 --1.4
+    p.movedir = Vector()
 
-    p.currentWeapon = nil
-
-    return setmetatable(p, Player)
+    return setmetatable(p, mt)
 end
 
 
-function Player:setVelocity(velocity)
-    self.velocity = velocity or Vector()
+function Player:getEntity()
+    return self.entity
 end
 
 
-function Player:applyVelocity(velocity)
-    self.entity:applyVelocity(velocity)
-end
-
---[[ unused methods
-function Player:setPosition(position)
-    self.position = position or self.position
+function Player:getShape()
+    return self.shape
 end
 
 
-function Player:move(dposition)
-    if dposition then
-        self.position = self.position + dposition
-    end
+----------------------------------------
+function Player:moveUp()
+    self.movedir = self.movedir + Vector(0,-1)
 end
---]]
-
-function Player:setWeapon(weapon)
-    self.currentWeapon = weapon
+function Player:moveDown()
+    self.movedir = self.movedir + Vector(0,1)
 end
-
-
-function Player:getWeapon()
-    return self.currentWeapon
+function Player:moveLeft()
+    self.movedir = self.movedir + Vector(-1,0)
 end
-
-
-function Player:useWeapon()
-    if self.currentWeapon then
-        local mx, my = love.mouse.getPosition()
-        local wx, wy = camera:toWorld(mx, my)
-        self.currentWeapon:shoot(self.position, Vector(mx, my))
-    end
+function Player:moveRight()
+    self.movedir = self.movedir + Vector(1,0)
 end
-
-
-function Player:reloadWeapon()
-    if self.currentWeapon then
-        self.currentWeapon:reload()
-    end
-end
+----------------------------------------
 
 
 function Player:update(dt)
-    self.entity.velocity = self.entity.velocity:normalized() * self.speed
+    -- update velocity and position
+    local velocity = self.movedir:normalize_inplace() * self.speed
+    self.entity:setVelocity(velocity)
+    self.movedir = Vector()
     self.entity:update(dt)
 
     if self.health <= 0 then
         self.alive = false
     end
 
+    -- log to console
     local s = 'Player:\npos: %s\nvel: %s\nhp: %.3f\n'
-    s = s:format(self.entity.position, self.entity.velocity, self.health)
+    s = s:format(self.entity:getPosition(), self.entity:getVelocity(), self.health)
     console:log(s)
 end
 
 
 function Player:draw()
     -- to be changed
-    local x, y = self.entity.position:unpack()
+    local x, y = self.entity:getPosition():unpack()
     love.graphics.circle('fill', x, y, self.entity.shape.radius)
 end
 

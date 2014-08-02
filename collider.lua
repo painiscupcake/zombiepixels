@@ -9,8 +9,42 @@ local HC = require 'hardoncollider'
 -- COLLISION RESPONSE FUNCTIONS --
 ----------------------------------
 
-local function callbackCollide(dt, shape_one, shape_two, dx, dy)
+-- enemy - enemy case
+local function enemy_enemy(dt, s1, s2, pd)
+    if s1.type == 'enemy' and s2.type 'enemy' then
+        local e1, e2 = s1.owner.entity, s2.owner.entity
+        e1:move(pd/2)
+        e2:move(-pd/2)
+    end
+end
 
+-- player - enemy case
+local function player_enemy(dt, s1, s2, pd)
+    local p,e
+    if s1.type == p then
+        p = s1
+        e = s2
+    elseif s2.type == p then
+        e = s1
+        p = s2
+        pd = -pd
+    else
+        return
+    end
+
+    --local pe = p.owner.entity
+    local ee = e.owner.entity
+
+    --pe:setPosition(pe:getPosition() - pd/2)
+    ee:move(-pd)
+end
+
+
+local function callbackCollide(dt, s1, s2, dx, dy)
+    local penDepth = Vector(dx,dy)
+
+    enemy_enemy(dt,s1,s2,penDepth)
+    player_enemy(dt,s1,s2,penDepth)
 end
 
 
@@ -34,29 +68,10 @@ local Collider = {}
 
 
 function Collider.init(cellsize)
-    Collider.collider = HC.new(cellsize, callbackCollide, callbackStop)
+    Collider.collider = HC.new(cellsize)--, callbackCollide, callbackStop)
+    Collider.collider:setCallbacks(callbackCollide, callbackStop)
     setmetatable(Collider, {__index = Collider.collider})
 end
 
---[[
-function Collider.addPolygon(...)
-    return Collider.collider:addPolygon(...)
-end
-
-
-function Collider.addRectangle(...)
-    return Collider.collider:addRectangle(...)
-end
-
-
-function Collider.addCircle(...)
-    return Collider.collider:addCircle(...)
-end
-
-
-function Collider.addPoint(...)
-    return Collider.collider:addPoint(...)
-end
---]]
 
 return Collider

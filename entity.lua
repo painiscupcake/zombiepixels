@@ -1,91 +1,68 @@
--- hardoncollider's shape wrapper, relies on variable
--- Collider which is an instance of HardonCollider
---
--- makes all shape methods callable with vectors
--- also adds mass, position and velocity
--- entities are updated with entity:update(dt)
--- using with entityupdater system is recommended
-
-
-local function newEntity(mass, position, velocity)
-    local e = {}
-    e.mass = mass or 1
-    e.position = position or Vector()
-    e.velocity = velocity or Vector()
-    return e
-end
-
+-- mass, velocity and shape container
+-- shape contains position
 
 local Entity = {}
-function Entity.__index(t, k)
-    local o = rawget(t, k)
+
+
+--local mt = {__index=Entity}
+local mt = {}
+function mt.__index(t,k)
+    local o = rawget(t,k)
     if o then
         return o
     else
-        o = rawget(Entity, k)
+        local o = Entity[k]
         if o then
             return o
         else
-            return t.shape[k]
+            local o = t.shape[k]
+            if o then
+                return o
+            else
+                error('No such key ' .. k .. '!')
+            end
         end
     end
 end
 
-------------------------
--- CREATION FUNCTIONS --
-------------------------
 
-function Entity.newPolygon(mass, position, points)
-    -- takes points array in format: {x1,y1,x2,y2, ... ,xn,yn}
-    -- points are local
-    local o = newEntity(mass, position)
+-- CREATION FUNCTIONS
 
-    local shape = Collider:addPolygon(unpack(points))
-    shape:moveTo(o.position:unpack())
-    o.shape = shape
-
-    return setmetatable(o, Entity)
+function Entity.newPolygon(mass, ...)
+    local e = {}
+    e.shape = Collider:addPolygon(...)
+    e.mass = mass
+    e.velocity = Vector()
+    return setmetatable(e, mt)
 end
 
-
-function Entity.newRectangle(mass, position, width, height)
-    -- position argument is the center of rectangle
-    local o = newEntity(mass, position)
-
-    local p = o.position
-    local ulc = p - Vector(width/2, height/2)    -- upper left corner
-    local shape = Collider:addRectangle(ulc.x, ulc.y, width, height)
-    o.shape = shape
-
-    return setmetatable(o, Entity)
+function Entity.newRectangle(mass, ...)
+    local e = {}
+    e.shape = Collider:addRectangle(...)
+    e.mass = mass
+    e.velocity = Vector()
+    return setmetatable(e, mt)
 end
 
-
-function Entity.newCircle(mass, position, radius)
-    local o = newEntity(mass, position)
-
-    local p = o.position
-    local shape = Collider:addCircle(p.x, p.y, radius)
-    shape.radius = radius
-    o.shape = shape
-
-    return setmetatable(o, Entity)
+function Entity.newCircle(mass, ...)
+    local e = {}
+    e.shape = Collider:addCircle(...)
+    e.mass = mass
+    e.velocity = Vector()
+    return setmetatable(e, mt)
 end
 
-
-function Entity.newPoint(mass, position)
-    local o = newEntity(mass, position)
-
-    local p = o.position
-    local shape = Collider:addPoint(p.x, p.y)
-    o.shape = shape
-
-    return setmetatable(o, Entity)
+function Entity.newPoint(mass, ...)
+    local e = {}
+    e.shape = Collider:addPoint(...)
+    e.mass = mass
+    e.velocity = Vector()
+    return setmetatable(e, mt)
 end
 
------------------------------------
--- SHAPE FUNCTIONS USING VECTORS --
------------------------------------
+---------------------
+
+-- SHAPE FUNCTION REDEFINITIONS
 
 function Entity:contains(region)
     return self.shape:contains(region:unpack())
@@ -98,16 +75,17 @@ end
 
 
 function Entity:move(dpos)
-    if dpos then
-        self.pos = self.pos + dpos
-        self.shape:move(dpos:unpack())
-    end
+    self.shape:move(dpos:unpack())
 end
 
 
 function Entity:moveTo(pos)
-    self.pos = self.pos + pos
     self.shape:moveTo(pos:unpack())
+end
+
+
+function Entity:scale(s)
+    self.shape:scale(s)
 end
 
 
@@ -117,23 +95,51 @@ function Entity:rotate(angle, pos)
 end
 
 
+function Entity:setRotation(angle, pos)
+    -- pos defaults to center if omitted
+    self.shape:setRotation(angle, pos:unpack())
+end
+
+--[[
+function Entity:center()
+    return self.shape:center()
+end
+--]]
+
+function Entity:rotation()
+    return self.shape:rotation()
+end
+
+
+function Entity:outcircle()
+    return self.shape:outcircle()
+end
+
+
+function Entity:bbox()
+    return self.shape:bbox()
+end
+
+
 function Entity:support(dpos)
     return Vector(self.shape:support(dpos:unpack()))
 end
 
------------------------------------
 
-function Entity:update(dt)
-    self.pos = self.pos + self.velocity * dt
+function Entity:collidesWith(other)
+    return self.shape:collidesWith(other)
 end
 
 
--- sets e.markedForRemoval flag to true
--- so that EntityUpdater will remove it from it's list
--- also removes entity's shape from Collider's list
-function Entity:markForRemoval()
-    self.markedForRemoval = true
-    Collider:remove(self.shape)
+function Entity:neighbors()
+    return self.shape:neighbors()
+end
+
+-------------------------------
+
+
+function Entity:update(dt)
+    self:move(self.velocity * dt)
 end
 
 
@@ -156,7 +162,7 @@ end
 
 
 function Entity:getPosition()
-    return self.position
+    return Vector(self:center())
 end
 
 
@@ -166,12 +172,17 @@ end
 
 
 function Entity:getVelocity()
-    return self.velocity()
+    return self.velocity
 end
 
 
 function Entity:applyVelocity(dvel)
     self.velocity = self.velocity + (dvel or Vector())
+end
+
+
+function Entity:limitVelocity(speed)
+    self.velocity = self.velocity:normalize_inplace() * speed
 end
 
 
